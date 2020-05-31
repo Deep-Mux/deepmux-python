@@ -1,7 +1,6 @@
 from io import BytesIO
 
 import numpy
-import torch
 
 from deepmux.interface import APIInterface
 from deepmux.model import Model, ModelState
@@ -9,7 +8,7 @@ from deepmux.util import torch_serialize_type
 
 
 def create_model(
-        pytorch_model: torch.nn.Module,
+        pytorch_model,
         model_name: str,
         input_shape: list,
         output_shape: list,
@@ -22,6 +21,10 @@ def create_model(
     :param output_shape: shape of output data
     :return: Model class object
     """
+    try:
+        import torch
+    except ImportError:
+        raise ImportError('You need pytorch module for creating models')
     client = APIInterface()
     # Exporting model to ONNX format
     model_file = BytesIO()
@@ -54,4 +57,3 @@ def get_model(model_name: str) -> Model:
                  input_shape=numpy.array(result.get('input_shape')),
                  output_shape=numpy.array(result.get('output_shape')),
                  data_type=result.get('data_type'))
-

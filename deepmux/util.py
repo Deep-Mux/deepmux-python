@@ -1,23 +1,26 @@
 import numpy
-import torch
-
-_torch_types = {
-    torch.uint8: 'UINT8',
-    torch.int8: 'INT8',
-    torch.int16: 'INT16',
-    torch.float16: 'FLOAT16',
-    torch.int32: 'INT32',
-    torch.float32: 'FLOAT32',
-    torch.int64: 'INT64',
-    torch.float64: 'FLOAT64',
-}
 
 
 def torch_serialize_type(t):
     try:
+        import torch
+
+        _torch_types = {
+            torch.uint8: 'UINT8',
+            torch.int8: 'INT8',
+            torch.int16: 'INT16',
+            torch.float16: 'FLOAT16',
+            torch.int32: 'INT32',
+            torch.float32: 'FLOAT32',
+            torch.int64: 'INT64',
+            torch.float64: 'FLOAT64',
+        }
+
         return _torch_types[t]
     except KeyError:
         raise KeyError("Torch tensors of type {} are not supported".format(t))
+    except ImportError:
+        raise ImportError('You need pytorch module for creating models')
 
 
 _numpy_types = {
