@@ -22,6 +22,14 @@ class InternalError(Exception):
     pass
 
 
+class UnauthorizedError(Exception):
+    pass
+
+
+class ForbiddenError(Exception):
+    pass
+
+
 class ModelExceptionFactory:
 
     @classmethod
@@ -36,5 +44,9 @@ class ModelExceptionFactory:
             return ModelProcessingError(message)
         elif code == 412:
             return ModelStateError(message)
+        elif code == 401:
+            return UnauthorizedError(message)
+        elif code == 403:
+            return ForbiddenError(message)
         else:
             return InternalError(message)

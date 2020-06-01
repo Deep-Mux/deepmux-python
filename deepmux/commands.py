@@ -12,6 +12,7 @@ def create_model(
         model_name: str,
         input_shape: list,
         output_shape: list,
+        token: str
 ) -> Model:
     """
     Creates model from pytorch model
@@ -19,6 +20,7 @@ def create_model(
     :param model_name: name of model
     :param input_shape: shape of input data
     :param output_shape: shape of output data
+    :param token: Your token
     :return: Model class object
     """
     try:
@@ -35,25 +37,28 @@ def create_model(
                       output_names=['out'])
     # Creating model on server
     tensor_type = torch_serialize_type(next(pytorch_model.parameters()).dtype)
-    client.create(model_name, input_shape, output_shape, tensor_type)
-    result = client.upload(model_name, model_file)
+    client.create(model_name, input_shape, output_shape, tensor_type, token=token)
+    result = client.upload(model_name, model_file, token=token)
     return Model(name=result.get('name'),
                  state=getattr(ModelState, result.get('state')),
                  input_shape=numpy.array(result.get('input_shape')),
                  output_shape=numpy.array(result.get('output_shape')),
-                 data_type=result.get('data_type'))
+                 data_type=result.get('data_type'),
+                 token=token)
 
 
-def get_model(model_name: str) -> Model:
+def get_model(model_name: str, token: str) -> Model:
     """
     Fetch model by name
     :param model_name: name of Model
+    :param token: Your token
     :return: Model class object
     """
     client = APIInterface()
-    result = client.get(model_name)
+    result = client.get(model_name, token=token)
     return Model(name=result.get('name'),
                  state=getattr(ModelState, result.get('state')),
                  input_shape=numpy.array(result.get('input_shape')),
                  output_shape=numpy.array(result.get('output_shape')),
-                 data_type=result.get('data_type'))
+                 data_type=result.get('data_type'),
+                 token=token)
