@@ -52,7 +52,7 @@ deepmux_model = create_model(
     output_shape=[1, 21, 600, 800],
     token=token)
 
-dummy_input = np.zeros([1, 3, 600, 800])
+dummy_input = np.zeros([1, 3, 600, 800], dtype=np.float32)
 
 output = deepmux_model.run(dummy_input)
 ```
