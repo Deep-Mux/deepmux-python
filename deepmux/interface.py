@@ -24,7 +24,7 @@ class APIInterface:
         return resp.json()
 
     def get(self, name: str, token: str = None):
-        resp = self._do_request(f'v1/model/{name}', method='GET')
+        resp = self._do_request(f'v1/model/{name}', method='GET', token=token)
 
         return resp.json()
 
@@ -70,7 +70,7 @@ class APIInterface:
 
         url = f"{self.base_url}/{endpoint}"
 
-        resp = requests.request(url=url, method=method, data=data,json=json_dict, files=files,
+        resp = requests.request(url=url, method=method, data=data, json=json_dict, files=files,
                                 timeout=self.timeout_sec, headers=headers)
 
         if resp.status_code != 200:
