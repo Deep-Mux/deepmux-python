@@ -38,7 +38,7 @@ output = model.run(<YOUR INPUT>)
 ### Complete example on a model from PyTorch Hub
 
 ```python
-import torch
+import numpy as np
 from deepmux import create_model
 
 token = "<YOUR_TOKEN>"
