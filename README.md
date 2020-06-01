@@ -41,6 +41,8 @@ output = model.run(<YOUR INPUT>)
 
 ```python
 import numpy as np
+import torch
+
 from deepmux import create_model
 
 token = "<YOUR_TOKEN>"
