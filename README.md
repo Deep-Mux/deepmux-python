@@ -47,16 +47,16 @@ from deepmux import create_model
 
 token = "<YOUR_TOKEN>"
 
-pytorch_model = torch.hub.load('pytorch/vision:v0.5.0', 'fcn_resnet101', pretrained=True)
+pytorch_model = torch.hub.load('pytorch/vision:v0.5.0', 'squeezenet1_0', pretrained=True)
 
 deepmux_model = create_model(
     pytorch_model,
     model_name='my_model',
-    input_shape=[1, 3, 600, 800],
-    output_shape=[1, 21, 600, 800],
+    input_shape=[1, 3, 227, 227],
+    output_shape=[1, 1000],
     token=token)
 
-dummy_input = np.zeros([1, 3, 600, 800], dtype=np.float32)
+dummy_input = np.zeros([1, 3, 227, 227], dtype=np.float32)
 
 output = deepmux_model.run(dummy_input)
 ```
