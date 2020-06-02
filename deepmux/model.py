@@ -31,11 +31,14 @@ class Model:
         """
         Run current model using tensor
         """
-        self.state = getattr(ModelState, self.interface.get(self.name, token=self.token).get('state')).value
+        if self.state != ModelState.READY.value:
+            self.state = getattr(ModelState, self.interface.get(self.name, token=self.token).get('state')).value
+
         if self.state == ModelState.PROCESSING.value:
             raise ModelProcessingError('Model is processing. Please try again later.')
         elif self.state != ModelState.READY.value:
             raise ModelStateError('You are not allowed to run non-ready model')
+
         return self.interface.run(model=self.name, tensor=tensor, output_shape=self.output_shape, token=self.token)
 
     def __repr__(self):
