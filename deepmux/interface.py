@@ -9,7 +9,7 @@ from deepmux.util import numpy_serialize_type
 
 
 class APIInterface:
-    def __init__(self, base_url: str = BASE_URL, timeout_sec: int = 60):
+    def __init__(self, base_url: str = BASE_URL, timeout_sec: int = 600):
         self.base_url = base_url
         self.timeout_sec = timeout_sec
 
