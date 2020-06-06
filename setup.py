@@ -5,7 +5,7 @@ with open('README.md', 'r') as fh:
 
 setuptools.setup(
     name="deepmux",
-    version="0.2.3",
+    version="0.2.4",
     author="DeepMux",
     author_email="dev@deepmux.com",
     long_description=long_description,

@@ -7,7 +7,7 @@ At the moment only **pytorch** models are supported.
 ## Installation
 
 ```
-pip install deepmux==0.2.3
+pip install deepmux==0.2.4
 ```
 
 ## Quickstart
