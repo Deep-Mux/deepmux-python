@@ -28,6 +28,10 @@ def create_model(
     except ImportError:
         raise ImportError('You need pytorch module for creating models')
     client = APIInterface()
+
+    if pytorch_model is None:
+        raise ValueError('Model must not be None')
+
     # Exporting model to ONNX format
     model_file = BytesIO()
     torch.onnx.export(pytorch_model,
