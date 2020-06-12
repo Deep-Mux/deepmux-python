@@ -36,9 +36,11 @@ python serve.py
 Now you can query your server and get predictions. We will use `curl` command line utility to send requests.
 Open a second terminal and type
 ```shell script
- curl http://localhost:8000/classify -X POST -F "image=@images/plane.jpg"
+ curl http://localhost:8000/classify -X POST -F "image=@images/balloon.jpg"
 ```
 You should see the response appear:
 ```json
 {"class":"balloon"}
 ```
+
+Success! You can also try other images in `images` directory 
