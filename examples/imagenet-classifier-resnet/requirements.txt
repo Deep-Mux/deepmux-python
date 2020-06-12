@@ -1,0 +1,6 @@
+requests
+torchvision
+Flask
+numpy
+deepmux
+Pillow
