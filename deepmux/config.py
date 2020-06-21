@@ -1,1 +1,1 @@
-BASE_URL = "http://api.deepmux.com"
+BASE_URL = "https://api.deepmux.com"
