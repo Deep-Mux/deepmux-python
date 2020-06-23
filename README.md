@@ -63,5 +63,4 @@ output = deepmux_model.run(dummy_input)
 
 ## Getting token
 
-Currently, **deepmux** is in closed testing. You can get your own token by contacting [tna0y](https://t.me/tna0y) or 
-[alexsaplin](https://t.me/alexsaplin).
+You can get your **deepmux** token at (https://app.deepmux.com/api_key)[https://app.deepmux.com/api_key].
