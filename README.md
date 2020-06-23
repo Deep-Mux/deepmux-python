@@ -9,6 +9,9 @@ At the moment only **pytorch** models are supported.
 ```
 pip install deepmux
 ```
+## Getting token
+
+You can get your **deepmux** token at [https://app.deepmux.com/api_key](https://app.deepmux.com/api_key).
 
 ## Quickstart
 
@@ -61,6 +64,3 @@ dummy_input = np.zeros([1, 3, 227, 227], dtype=np.float32)
 output = deepmux_model.run(dummy_input)
 ```
 
-## Getting token
-
-You can get your **deepmux** token at [https://app.deepmux.com/api_key](https://app.deepmux.com/api_key).
