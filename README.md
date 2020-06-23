@@ -63,4 +63,4 @@ output = deepmux_model.run(dummy_input)
 
 ## Getting token
 
-You can get your **deepmux** token at (https://app.deepmux.com/api_key)[https://app.deepmux.com/api_key].
+You can get your **deepmux** token at [https://app.deepmux.com/api_key](https://app.deepmux.com/api_key).
