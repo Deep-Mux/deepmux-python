@@ -72,7 +72,7 @@ class APIInterface:
     def _do_request(self, endpoint: str,
                     method: str,
                     token: str,
-                    data: Optional[dict] = None,
+                    data: Optional[Union[dict, bytes]] = None,
                     json_dict: Optional[dict] = None,
                     files: Optional[dict] = None):
 
