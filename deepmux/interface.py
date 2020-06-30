@@ -1,4 +1,6 @@
+import io
 import json
+from typing import Union, List, Optional, Tuple
 
 import numpy
 import requests
@@ -13,12 +15,18 @@ class APIInterface:
         self.base_url = base_url
         self.timeout_sec = timeout_sec
 
-    def create(self, name: str, input_shape: list, output_shape: list, tensor_type: str, token: str):
+    def create(self,
+               name: str,
+               input_shape: List[Union[List[int], Tuple[int]]],
+               output_shape: List[Union[List[int], Tuple[int]]],
+               tensor_type: str,
+               token: str):
         shapes_dict = {
-            'input_shape': input_shape,
-            'output_shape': output_shape,
+            'input': input_shape,
+            'output': output_shape,
             'data_type': tensor_type,
         }
+
         resp = self._do_request(f'v1/model/{name}', method='PUT', json_dict=shapes_dict, token=token)
 
         return resp.json()
@@ -28,32 +36,45 @@ class APIInterface:
 
         return resp.json()
 
-    def upload(self, name: str, model_file, token: str = None):
-        if isinstance(model_file, str):
-            # File path
-            with open(model_file, 'rb') as file:
-                data = file.read()
-        else:
-            # File-like object
-            data = model_file.getvalue()
+    def upload(self,
+               name: str, model_file: io.BytesIO, token: str):
+        data = model_file.getvalue()
         resp = self._do_request(f'v1/model/{name}', method='POST', data=data, token=token)
         return resp.json()
 
-    def run(self, model: str, tensor: numpy.ndarray, output_shape: list = None, token: str = None):
-        if output_shape is None:
-            output_shape = [1, -1]
+    def run(self, model: str,
+            tensors: Union[numpy.ndarray, List[numpy.ndarray], Tuple[numpy.ndarray]],
+            output_shape: List[Union[List[int], Tuple[int]]],
+            data_type: type,
+            token: str = None):
+
         files = {
-            'tensor': tensor.tobytes()
+                'tensor': b''.join(map(lambda x: x.tobytes(), tensors))
         }
         payload = {
-            'shape': json.dumps(list(tensor.shape)),
-            'data_type': numpy_serialize_type(tensor.dtype),
+            'shape': json.dumps(list(map(lambda x: x.shape, tensors))),
+            'data_type': numpy_serialize_type(tensors[0].dtype),
         }
         resp = self._do_request(f'v1/model/{model}/run', method='POST', data=payload, files=files, token=token)
-        return numpy.frombuffer(resp.content, dtype=numpy.float32).reshape(output_shape)
+        resp_bytes = resp.content
+        if len(output_shape) == 1:
+            return numpy.frombuffer(resp_bytes, dtype=data_type).reshape(output_shape[0])
+        else:
+            result = []
+            total_size = 0
+            for shape in output_shape:
+                tensor_size = numpy.prod(shape) * data_type().itemsize
+                cur_buffer = resp_bytes[total_size: total_size + tensor_size]
+                result.append(numpy.frombuffer(cur_buffer, dtype=data_type).reshape(shape))
+                total_size += tensor_size
+            return result
 
-    def _do_request(self, endpoint: str, method: str, data: dict = None, json_dict: dict = None, files: dict = None,
-                    token: str = None):
+    def _do_request(self, endpoint: str,
+                    method: str,
+                    token: str,
+                    data: Optional[dict] = None,
+                    json_dict: Optional[dict] = None,
+                    files: Optional[dict] = None):
 
         if data is None:
             data = dict()
