@@ -52,9 +52,18 @@ _numpy_types = {
     numpy.dtype('complex128'): 'COMPLEX128',
 }
 
+_numpy_inverse = {v: k for k, v in _numpy_types.items()}
+
 
 def numpy_serialize_type(t):
     try:
         return _numpy_types[t]
+    except KeyError:
+        raise KeyError("Numpy tensors of type {} are not supported".format(t))
+
+
+def numpy_parse_type(t):
+    try:
+        return _numpy_inverse[t]
     except KeyError:
         raise KeyError("Numpy tensors of type {} are not supported".format(t))

@@ -23,31 +23,37 @@ def create_model(
     :param token: Your token
     :return: Model class object
     """
+    if not len(input_shape) or not len(output_shape):
+        raise ValueError('Input and output shapes can\'t be empty')
+
+    if not isinstance(input_shape[0], (tuple, list, numpy.ndarray)):
+        input_shape = [input_shape]
+
+    if not isinstance(output_shape[0], (tuple, list, numpy.ndarray)):
+        output_shape = [output_shape]
+
     try:
         import torch
     except ImportError:
         raise ImportError('You need pytorch module for creating models')
     client = APIInterface()
-
-    if pytorch_model is None:
-        raise ValueError('Model must not be None')
-
     # Exporting model to ONNX format
     model_file = BytesIO()
     torch.onnx.export(pytorch_model,
-                      torch.zeros(input_shape),
+                      tuple(torch.zeros(x) for x in input_shape),
                       model_file,
-                      input_names=['in'],
-                      output_names=['out'])
+                      input_names=[f'in_{x}' for x in range(len(input_shape))],
+                      output_names=[f'out_{x}' for x in range(len(output_shape))])
     # Creating model on server
     tensor_type = torch_serialize_type(next(pytorch_model.parameters()).dtype)
     client.create(model_name, input_shape, output_shape, tensor_type, token=token)
     result = client.upload(model_name, model_file, token=token)
     return Model(name=result.get('name'),
                  state=getattr(ModelState, result.get('state')),
-                 input_shape=numpy.array(result.get('input_shape')),
-                 output_shape=numpy.array(result.get('output_shape')),
+                 input_shape=numpy.array(result.get('input')),
+                 output_shape=numpy.array(result.get('output')),
                  data_type=result.get('data_type'),
+                 error=result.get('error'),
                  token=token)
 
 
@@ -62,7 +68,8 @@ def get_model(model_name: str, token: str) -> Model:
     result = client.get(model_name, token=token)
     return Model(name=result.get('name'),
                  state=getattr(ModelState, result.get('state')),
-                 input_shape=numpy.array(result.get('input_shape')),
-                 output_shape=numpy.array(result.get('output_shape')),
+                 input_shape=numpy.array(result.get('input')),
+                 output_shape=numpy.array(result.get('output')),
                  data_type=result.get('data_type'),
+                 error=result.get('error'),
                  token=token)
