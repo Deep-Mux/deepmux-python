@@ -43,7 +43,8 @@ def create_model(
                       tuple(torch.zeros(x) for x in input_shape),
                       model_file,
                       input_names=[f'in_{x}' for x in range(len(input_shape))],
-                      output_names=[f'out_{x}' for x in range(len(output_shape))])
+                      output_names=[f'out_{x}' for x in range(len(output_shape))],
+                      opset_version=11)
     # Creating model on server
     tensor_type = torch_serialize_type(next(pytorch_model.parameters()).dtype)
     client.create(model_name, input_shape, output_shape, tensor_type, token=token)
