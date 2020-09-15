@@ -1,4 +1,8 @@
+from enum import Enum
+
 import numpy
+
+from deepmux.config import INT64_SIZE
 
 
 def torch_serialize_type(t):
@@ -67,3 +71,22 @@ def numpy_parse_type(t):
         return _numpy_inverse[t]
     except KeyError:
         raise KeyError("Numpy tensors of type {} are not supported".format(t))
+
+
+def parse_output_shapes(tensors_count: int, output_shapes_bytes: bytes):
+    current_pos = 0
+    result = []
+    for tensor_id in range(tensors_count):
+        shape_size = numpy.frombuffer(output_shapes_bytes[current_pos:current_pos + INT64_SIZE],
+                                      dtype=numpy.int64)[0]
+        current_pos += INT64_SIZE
+        shape = numpy.frombuffer(output_shapes_bytes[current_pos:current_pos + INT64_SIZE * shape_size],
+                                 dtype=numpy.int64)
+        result.append(shape)
+    return result
+
+
+class RunModelResponseParts(Enum):
+    TENSORS_COUNT_PART = 0
+    RESULT_PART = 1
+    SHAPE_PART = 2

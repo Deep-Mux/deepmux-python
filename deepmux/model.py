@@ -7,6 +7,7 @@ from deepmux.interface import APIInterface
 from deepmux.config import BASE_URL
 from deepmux.util import numpy_parse_type
 
+
 class ModelState(Enum):
     CREATED = 1
     PROCESSING = 2
@@ -18,7 +19,7 @@ class ModelState(Enum):
 class Model:
 
     def __init__(self, name: str, state: ModelState, input_shape: numpy.array, output_shape: numpy.array,
-            data_type: str, error: str, token: str, service_url: str = BASE_URL):
+                 data_type: str, error: str, token: str, service_url: str = BASE_URL):
         self.name = name
         self.state = state.value
         self.input_shape = input_shape
@@ -49,8 +50,7 @@ class Model:
         elif self.state != ModelState.READY.value:
             raise ModelStateError('You can\'t run non-ready model')
 
-        return self.interface.run(model=self.name, tensors=tensors, output_shape=self.output_shape,
-                                  data_type=self.data_type, token=self.token)
+        return self.interface.run(model=self.name, tensors=tensors, data_type=self.data_type, token=self.token)
 
     def __repr__(self):
         return 'Model(name={}, state={}, input_shape={}, output_shape={}, data_type={})'. \

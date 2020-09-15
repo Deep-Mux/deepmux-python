@@ -4,10 +4,11 @@ from typing import Union, List, Optional, Tuple
 
 import numpy
 import requests
+from requests_toolbelt.multipart import decoder
 
 from deepmux.config import BASE_URL
 from deepmux.exceptions import ModelExceptionFactory
-from deepmux.util import numpy_serialize_type
+from deepmux.util import numpy_serialize_type, parse_output_shapes, RunModelResponseParts
 
 
 class APIInterface:
@@ -44,27 +45,30 @@ class APIInterface:
 
     def run(self, model: str,
             tensors: Union[numpy.ndarray, List[numpy.ndarray], Tuple[numpy.ndarray]],
-            output_shape: List[Union[List[int], Tuple[int]]],
             data_type: type,
             token: str = None):
 
         files = {
-                'tensor': b''.join(map(lambda x: x.tobytes(), tensors))
+            'tensor': b''.join(map(lambda x: x.tobytes(), tensors))
         }
         payload = {
             'shape': json.dumps(list(map(lambda x: x.shape, tensors))),
             'data_type': numpy_serialize_type(tensors[0].dtype),
         }
         resp = self._do_request(f'v1/model/{model}/run', method='POST', data=payload, files=files, token=token)
-        resp_bytes = resp.content
+        parts = decoder.MultipartDecoder(resp.content, resp.headers.get('Content-type')).parts
+        tensors_count = numpy.frombuffer(parts[RunModelResponseParts.TENSORS_COUNT_PART.value].content,
+                                         dtype=numpy.int64)[0]
+        output_shape = parse_output_shapes(tensors_count, parts[RunModelResponseParts.SHAPE_PART.value].content)
+        result_bytes = parts[RunModelResponseParts.RESULT_PART.value].content
         if len(output_shape) == 1:
-            return numpy.frombuffer(resp_bytes, dtype=data_type).reshape(output_shape[0])
+            return numpy.frombuffer(result_bytes, dtype=data_type).reshape(output_shape[0])
         else:
             result = []
             total_size = 0
             for shape in output_shape:
                 tensor_size = numpy.prod(shape) * data_type().itemsize
-                cur_buffer = resp_bytes[total_size: total_size + tensor_size]
+                cur_buffer = result_bytes[total_size:total_size + tensor_size]
                 result.append(numpy.frombuffer(cur_buffer, dtype=data_type).reshape(shape))
                 total_size += tensor_size
             return result
