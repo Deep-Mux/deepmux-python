@@ -87,6 +87,5 @@ def parse_output_shapes(tensors_count: int, output_shapes_bytes: bytes):
 
 
 class RunModelResponseParts(Enum):
-    TENSORS_COUNT_PART = 0
-    RESULT_PART = 1
-    SHAPE_PART = 2
+    RESULT_PART = 0
+    SHAPE_PART = 1

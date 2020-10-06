@@ -57,9 +57,8 @@ class APIInterface:
         }
         resp = self._do_request(f'v1/model/{model}/run', method='POST', data=payload, files=files, token=token)
         parts = decoder.MultipartDecoder(resp.content, resp.headers.get('Content-type')).parts
-        tensors_count = numpy.frombuffer(parts[RunModelResponseParts.TENSORS_COUNT_PART.value].content,
-                                         dtype=numpy.int64)[0]
-        output_shape = parse_output_shapes(tensors_count, parts[RunModelResponseParts.SHAPE_PART.value].content)
+
+        output_shape = json.loads(parts[RunModelResponseParts.SHAPE_PART.value].content).get('shape')
         result_bytes = parts[RunModelResponseParts.RESULT_PART.value].content
         if len(output_shape) == 1:
             return numpy.frombuffer(result_bytes, dtype=data_type).reshape(output_shape[0])
