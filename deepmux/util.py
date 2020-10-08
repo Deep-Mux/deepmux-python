@@ -1,3 +1,5 @@
+from enum import Enum
+
 import numpy
 
 
@@ -67,3 +69,8 @@ def numpy_parse_type(t):
         return _numpy_inverse[t]
     except KeyError:
         raise KeyError("Numpy tensors of type {} are not supported".format(t))
+
+
+class RunModelResponseParts(Enum):
+    RESULT_PART = 0
+    SHAPE_PART = 1

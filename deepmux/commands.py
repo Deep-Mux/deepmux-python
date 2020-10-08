@@ -12,12 +12,15 @@ def create_model(
         model_name: str,
         input_shape: list,
         output_shape: list,
-        token: str
+        token: str,
 ) -> Model:
     """
     Creates model from pytorch model
     :param pytorch_model: torch.nn.Module object
     :param model_name: name of model
+    How to define dynamic axes?
+    You should put None instead of shape value.
+    Example: [None, 1, 64] - first axis will be dynamic
     :param input_shape: shape of input data
     :param output_shape: shape of output data
     :param token: Your token
@@ -39,11 +42,30 @@ def create_model(
     client = APIInterface()
     # Exporting model to ONNX format
     model_file = BytesIO()
+    # Dynamic axes
+    input_dynamic_axes = [[] for i in range(len(input_shape))]
+    output_dynamic_axes = [[] for i in range(len(output_shape))]
+
+    dynamic_axes_dict = {}
+
+    def fill_dynamic_axes(dynamic_axes, io_shape, io_prefix):
+        for idx, shape in enumerate(io_shape):
+            for axis_idx, axis_value in enumerate(shape):
+                if axis_value is None:
+                    dynamic_axes[idx].append(axis_idx)
+            if dynamic_axes[idx]:
+                dynamic_axes_dict[f'{io_prefix}_{idx}'] = dynamic_axes[idx]
+
+    fill_dynamic_axes(input_dynamic_axes, input_shape, 'in')
+    fill_dynamic_axes(output_dynamic_axes, output_shape, 'out')
+
+    sample_input_shape = [[1 if x is None else x for x in shape] for shape in input_shape]
     torch.onnx.export(pytorch_model,
-                      tuple(torch.zeros(x) for x in input_shape),
+                      tuple(torch.zeros(x) for x in sample_input_shape),
                       model_file,
                       input_names=[f'in_{x}' for x in range(len(input_shape))],
                       output_names=[f'out_{x}' for x in range(len(output_shape))],
+                      dynamic_axes=dynamic_axes_dict,
                       opset_version=11)
     # Creating model on server
     tensor_type = torch_serialize_type(next(pytorch_model.parameters()).dtype)
