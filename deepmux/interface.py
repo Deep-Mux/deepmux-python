@@ -8,7 +8,7 @@ from requests_toolbelt.multipart import decoder
 
 from deepmux.config import BASE_URL
 from deepmux.exceptions import ModelExceptionFactory
-from deepmux.util import numpy_serialize_type, parse_output_shapes, RunModelResponseParts
+from deepmux.util import numpy_serialize_type, RunModelResponseParts
 
 
 class APIInterface:

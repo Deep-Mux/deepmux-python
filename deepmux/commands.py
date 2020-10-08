@@ -20,7 +20,7 @@ def create_model(
     :param model_name: name of model
     How to define dynamic axes?
     You should put None instead of shape value.
-    Example: [None, 1, 64] - first axe will be dynamic
+    Example: [None, 1, 64] - first axis will be dynamic
     :param input_shape: shape of input data
     :param output_shape: shape of output data
     :param token: Your token
@@ -48,16 +48,16 @@ def create_model(
 
     dynamic_axes_dict = {}
 
-    def fill_dynamic_axes(dynamic_axes, io_shape, io_prefix, result_dict):
+    def fill_dynamic_axes(dynamic_axes, io_shape, io_prefix):
         for idx, shape in enumerate(io_shape):
-            for axe_idx, axe_value in enumerate(shape):
-                if axe_value is None:
-                    dynamic_axes[idx].append(axe_idx)
+            for axis_idx, axis_value in enumerate(shape):
+                if axis_value is None:
+                    dynamic_axes[idx].append(axis_idx)
             if dynamic_axes[idx]:
                 dynamic_axes_dict[f'{io_prefix}_{idx}'] = dynamic_axes[idx]
 
-    fill_dynamic_axes(input_dynamic_axes, input_shape, 'in', dynamic_axes_dict)
-    fill_dynamic_axes(output_dynamic_axes, output_shape, 'out', dynamic_axes_dict)
+    fill_dynamic_axes(input_dynamic_axes, input_shape, 'in')
+    fill_dynamic_axes(output_dynamic_axes, output_shape, 'out')
 
     sample_input_shape = [[1 if x is None else x for x in shape] for shape in input_shape]
     torch.onnx.export(pytorch_model,
